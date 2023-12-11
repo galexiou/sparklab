@@ -67,10 +67,7 @@ val totalLength = lineLengths.reduce((a, b) => a + b)
 d. Perform word count:
 
 ```scala
-val wordCounts = lines
-  .flatMap(line => line.split(" "))
-  .map(word => (word, 1))
-  .reduceByKey((a, b) => a + b)
+val wordCounts = lines.flatMap(line => line.split(" ")).map(word => (word, 1)).reduceByKey((a, b) => a + b)
 ```
 
 e. Collect and print word counts:
@@ -192,10 +189,7 @@ readme.map(line => line.split(" ").size).reduce((a, b) => Math.max(a, b))
 i. Perform word count:
 
 ```scala
-val wordCounts = readme
-  .flatMap(line => line.split(" "))
-  .map(word => (word, 1))
-  .reduceByKey((a, b) => a + b)
+val wordCounts = readme.flatMap(line => line.split(" ")).map(word => (word, 1)).reduceByKey((a, b) => a + b)
 ```
 
 j. Collect and print word counts:
