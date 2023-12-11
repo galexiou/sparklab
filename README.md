@@ -1,5 +1,3 @@
-```markdown
-
 # Spark LAB Basics
 
   This README provides instructions and code snippets for using Spark in standalone mode using a Docker image. 
@@ -408,5 +406,3 @@ taxiMedCountsOneLine.count()
 
 ### Note
 Remember to follow each step as outlined for optimal learning and practice. Each section builds upon the previous ones.
-
-```
