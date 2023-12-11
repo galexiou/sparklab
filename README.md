@@ -265,10 +265,7 @@ println(pom.filter(line => line.contains("spark")).count())
 e. Perform WordCount on the README file:
 
 ```scala
-val readmeCount = readmeFile
-  .flatMap(line => line.split(" "))
-  .map(word => (word, 1))
-  .reduceByKey(_ + _)
+val readmeCount = readmeFile.flatMap(line => line.split(" ")).map(word => (word, 1)).reduceByKey(_ + _)
 ```
 
 f. Perform WordCount on the POM file:
