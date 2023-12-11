@@ -280,10 +280,7 @@ val readmeCount = readmeFile
 f. Perform WordCount on the POM file:
 
 ```scala
-val pomCount = pom
-  .flatMap(line => line.split(" "))
-  .map(word => (word, 1))
-  .reduceByKey(_ + _)
+val pomCount = pom.flatMap(line => line.split(" ")).map(word => (word, 1)).reduceByKey(_ + _)
 ```
 
 g. Join the two RDDs and cache the result:
