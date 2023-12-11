@@ -1,21 +1,20 @@
-
 ```markdown
 
 # Spark LAB Basics
 
-This README provides instructions and code snippets for using Spark in standalone mode using a Docker image. 
-Make sure you have Docker installed before proceeding.
+  This README provides instructions and code snippets for using Spark in standalone mode using a Docker image. 
+  Make sure you have Docker installed before proceeding.
 
-### Getting Started
+## Getting Started
 
-To get started, follow these steps:
+  To get started, follow these steps:
 
 ### 1. Pull the Docker Image
 
 a. Pull the latest Docker image for Spark in standalone mode:
 
 ```bash
-docker pull galexiou/sparklab:latest
+ docker pull galexiou/sparklab:latest
 ```
 
 ### 2. Run the Docker Container
