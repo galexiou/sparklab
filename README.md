@@ -1,7 +1,7 @@
 
 ```markdown
 
-# Spark LAB Basics
+### Spark LAB Basics
 
 This README provides instructions and code snippets for using Spark in standalone mode using a Docker image. 
 Make sure you have Docker installed before proceeding.
