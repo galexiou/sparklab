@@ -6,7 +6,7 @@
 This README provides instructions and code snippets for using Spark in standalone mode using a Docker image. 
 Make sure you have Docker installed before proceeding.
 
-## Getting Started
+### Getting Started
 
 To get started, follow these steps:
 
