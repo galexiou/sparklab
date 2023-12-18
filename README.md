@@ -404,5 +404,233 @@ j. Run the count action again to see the difference:
 taxiMedCountsOneLine.count()
 ```
 
+## 9. Spark SQL - Inferring Schema Using Reflection
+
+```scala
+import sqlContext.implicits._
+```
+
+a. The case class in Scala defines the schema of the table
+
+```scala
+case class Person(name: String, age: Int)
+```
+
+b. Create the RDD of the Person object
+
+```scala
+val people = sc.textFile("labdata/people.txt").map(_.split(","))
+               .map(p => Person(p(0),p(1).trim.toInt)).toDF()
+```
+
+c. Register the RDD as a table
+
+```scala
+people.createOrReplaceTempView("people")
+```
+
+d. Run SQL statements using the sql method provided by the SQLContext
+
+```scala
+val teenagers = sqlContext.sql("SELECT name, age FROM people WHERE age > 13 AND age <= 18")
+```
+
+e. The results of the queries are SchemaRDD. Normal RDD operations work on them
+
+```scala
+teenagers.map(t => "Name: " + t(0) + " Age: " + t(1)).collect().foreach(println)
+```
+
+## 10. Spark SQL - Programmatic Interface
+
+a. Create the RDD:
+
+```scala
+val people = sc.textFile("/labdata/people.txt")
+```
+
+b. Create an RDD of Rows from the original RDD
+
+```scala
+val schemaString = "name age"
+```
+
+c. Import SQL types
+
+```scala
+import org.apache.spark.sql.types._
+```
+
+d. Create the schema represented by a StructType matching the structure of the Rows in the RDD from step 1.
+
+```scala
+val schema = StructType(schemaString.split(" ").map(fieldName => StructField(fieldName, StringType, true)))
+```
+
+e. Apply the schema to the RDD of Rows using the applySchema method.
+
+```scala
+val rowRDD = people.map(_.split(",")).map(p => Row(p(0), p(1).trim))
+
+val peopleDataFrame = sqlContext.createDataFrame(rowRDD, schema)
+```
+
+f. Register the RDD as a table
+
+```scala
+peopleDataFrame.registerTempTable("people")
+```
+
+g. Run SQL statements using the sql method provided by the SQLContext
+
+```scala
+val results = sqlContext.sql("SELECT name FROM people")
+results.map(t => "Name: " + t(0)).collect().foreach(println)
+```
+
+## 11. Spark SQL - Hands on!
+
+a. Create a case class in Scala that defines the schema of the table
+
+```scala
+case class Weather(date: String, temp: Int, precipitation: Double)
+```
+
+b. Create the RDD of the Weather object. You first load in the file, and then you map it by splitting it up by the commas and then another mapping to get it into the Weather class.
+
+```scala
+val weather = sc.textFile("/labdata/nycweather.csv").map(_.split(","))
+               .map(w => Weather(w(0), w(1).trim.toInt, w(2).trim.toDouble)).toDF()
+```
+
+c. Next you need to register the RDD as a table. Type in:
+
+```scala
+weather.createOrReplaceTempView("weather")
+```
+
+d. At this point, you are ready to create and run some queries on the RDD. You want to get a list of the hottest dates with some precipitation. Type in:
+
+```scala
+val hottest_with_precip = sqlContext.sql("SELECT * FROM weather WHERE precipitation > 0.0 ORDER BY temp DESC")
+hottest_with_precip.collect()
+```
+
+e. Print the top hottest days with some precipitation out to the console:
+
+```scala
+hottest_with_precip.map(x => ("Date: " + x(0), "Temp : " + x(1), "Precip: " + x(2))).take(10).foreach(println)
+```
+
+## 12. Spark Streaming
+
+a. Turn off logging so that you can see the output of the application and Import the required libraries:
+
+```scala
+import org.apache.log4j.Logger
+import org.apache.log4j.Level
+Logger.getLogger("org").setLevel(Level.OFF)
+Logger.getLogger("akka").setLevel(Level.OFF)
+import org.apache.spark._
+import org.apache.spark.streaming._
+import org.apache.spark.streaming.StreamingContext._
+```
+
+b. Create the StreamingContext by using the existing SparkContext (sc). It will be using a 1 second batch interval, which means the stream is divided to 1 sec batches and each batch becomes a RDD.
+
+```scala
+val ssc = new StreamingContext(sc, Seconds(1))
+```
+
+c. Create the socket stream that connects to the localhost socket 7777. This matches the port that the Python script is listening on. Each batch from the Stream be a lines RDD.
+
+```scala
+val lines = ssc.socketTextStream("localhost", 7777)
+```
+
+d. Next, put in the business logic to split up the lines on each comma and mapping pass(15), which is the vendor, and pass(7), which is the passenger count. Then this is reduced by key resulting in a summary of number of passengers by vendor.
+
+```scala
+val pass = lines.map(_.split(",")).map(pass => (pass(15), pass(7).toInt)).reduceByKey(_ + _)
+```
+
+e. Print out to console
+
+```scala
+pass.print()
+```
+
+f. The next two line starts the stream.
+
+```scala
+ssc.start()
+ssc.awaitTermination()
+```
+* It will take a few cycles for the connection to be recognized, and then the data is sent. In this case, 2 rows per second of taxi trip data is received in a 1 second batch interval.
+
+## 13. Spark MLlib
+
+a. Import the needed packages for K-Means algorithm and Vector packages:
+
+```scala
+import org.apache.spark.mllib.clustering.KMeans
+import org.apache.spark.mllib.linalg.Vectors
+```
+
+b. Create an RDD
+
+```scala
+val taxiFile = sc.textFile("/labdata/nyctaxisub.csv")
+```
+
+c. Determine the number of rows in taxiFile.
+
+```scala
+taxiFile.count()
+```
+
+d. Cleanse the data.
+
+```scala
+val taxiData = taxiFile.filter(_.contains("2013")).filter(_.split(",")(3) != "").filter(_.split(",")(4) != "")
+```
+
+e. Do another count to see what was removed.
+
+```scala
+taxiData.count()
+```
+
+f. To fence the area roughly to New York City use this command:
+
+```scala
+val taxiFence = taxiData.filter(_.split(",")(3).toDouble > 40.70).filter(_.split(",")(3).toDouble < 40.86).filter(_.split(",")(4).toDouble > (-74.02)).filter(_.split(",")(4).toDouble < (-73.93))
+```
+
+g. Determine how many are left in taxiFence:
+
+```scala
+taxiFence.count()
+```
+
+h. Create Vectors with the latitudes and longitudes that will be used as input to the K-Means algorithm.
+
+```scala
+val taxi = taxiFence.map { line => Vectors.dense(line.split(',').slice(3, 5).map(_.toDouble)) }
+taxi.cache()
+
+val iterationCount = 10
+
+val clusterCount = 3
+
+val model = KMeans.train(taxi, clusterCount, iterationCount)
+
+val clusterCenters = model.clusterCenters.map(_.toArray)
+
+clusterCenters.foreach(lines => println(lines(0), lines(1)))
+```
+
+
+
 ### Note
 Remember to follow each step as outlined for optimal learning and practice. Each section builds upon the previous ones.
