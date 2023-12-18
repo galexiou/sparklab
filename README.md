@@ -407,7 +407,7 @@ taxiMedCountsOneLine.count()
 ## 9. Spark SQL - Inferring Schema Using Reflection
 
 ```scala
-import org.apache.spark.sql.SparkSession 
+import org.apache.spark.sql._
 
 val sqlContext = spark.sqlContext
 
