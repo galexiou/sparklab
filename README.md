@@ -419,8 +419,7 @@ case class Person(name: String, age: Int)
 b. Create the RDD of the Person object
 
 ```scala
-val people = sc.textFile("labdata/people.txt").map(_.split(","))
-               .map(p => Person(p(0),p(1).trim.toInt)).toDF()
+val people = sc.textFile("labdata/people.txt").map(_.split(",")).map(p => Person(p(0),p(1).trim.toInt)).toDF()
 ```
 
 c. Register the RDD as a table
