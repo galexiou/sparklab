@@ -583,7 +583,7 @@ import org.apache.spark.mllib.linalg.Vectors
 b. Create an RDD
 
 ```scala
-val taxiFile = sc.textFile("/labdata/nyctaxisub.csv")
+val taxiFile = sc.textFile("/labdata/nyctaxisub.txt")
 ```
 
 c. Determine the number of rows in taxiFile.
